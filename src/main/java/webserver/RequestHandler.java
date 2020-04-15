@@ -1,10 +1,14 @@
 package webserver;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +28,17 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+            InputStreamReader reader = new InputStreamReader(in);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            String fileName = RequestUtils.getRequestedFile(bufferedReader);
+
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "Hello World2".getBytes();
+            byte[] body;
+            if (fileName != null && fileName.equals("/index.html")) {
+                body = Files.readAllBytes(Paths.get("webapp/index.html"));
+            } else {
+                body = "Hello World".getBytes();
+            }
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {

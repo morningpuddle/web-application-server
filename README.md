@@ -16,12 +16,11 @@
 
 ### 요구사항 1 - http://localhost:8080/index.html로 접속시 응답
 * BufferedReader#readLine hangs. Need to check " " and null
+* CSS doesn't load. Chrome Inspect showed "Resource interpreted as Stylesheet but transferred with MIME". Due to Content-Type 
 
 ### 요구사항 2 - get 방식으로 회원가입
-* 
-
 ### 요구사항 3 - post 방식으로 회원가입
-* 
+* get은 params가 url에, post는 body에 
 
 ### 요구사항 4 - redirect 방식으로 이동
 * 

@@ -13,8 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -29,13 +28,13 @@ public class RequestTest {
     TestDatabaseImpl db;
 
     public class TestDatabaseImpl implements DataBase {
-        public List<User> users = new LinkedList<>();
+        public Map<String, User> users = new HashMap<>();
 
         @Override
-        public void addUser(User user) { users.add(user); }
+        public void addUser(User user) { users.put(user.getUserId(), user); }
 
         @Override
-        public User findUserById(String userId) { return null; }
+        public User findUserById(String userId) { return users.get(userId); }
 
         @Override
         public Collection<User> findAll() { return null; }
@@ -47,10 +46,65 @@ public class RequestTest {
     }
 
     @Test
+    public void testLoginRequestHandleResponse() {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        User user = new User("id", "pass", null, null);
+        db.addUser(user);
+
+        LoginRequest getRequest = new LoginRequest(
+                db,
+                Map.of("userId", "id", "password", "pass")
+        );
+        getRequest.handleResponse(stream);
+
+        String res = new String(stream.toByteArray());
+
+        assertThat(res, containsString("302 Found"));
+        assertThat(res, containsString("Location: /index.html"));
+        assertThat(res, containsString("Cookie: logined=true"));
+    }
+
+    @Test
+    public void testLoginRequestHandleResponseForFailed() throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        User user = new User("id", "fail", null, null);
+        db.addUser(user);
+
+        LoginRequest getRequest = new LoginRequest(
+                db,
+                Map.of("userId", "id", "password", "pass")
+        );
+        getRequest.handleResponse(stream);
+
+        String res = new String(stream.toByteArray());
+
+        assertThat(res, containsString("302 Found"));
+        assertThat(res, containsString("Location: /user/login_failed.html"));
+        assertThat(res, containsString("Cookie: logined=false"));
+    }
+
+    @Test
+    public void testLoginRequestHandleResponseForNonexistentUser() throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        LoginRequest getRequest = new LoginRequest(
+                db,
+                Map.of("userId", "id", "password", "pass")
+        );
+        getRequest.handleResponse(stream);
+
+        String res = new String(stream.toByteArray());
+
+        assertThat(res, containsString("302 Found"));
+        assertThat(res, containsString("Location: /user/login_failed.html"));
+        assertThat(res, containsString("Cookie: logined=false"));
+    }
+
+    @Test
     public void testGetRequestHandleResponse() throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/test-index.html");
+        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/test-index.html", false);
         getRequest.handleResponse(stream);
 
         Path filePath = TEST_RESOURCE_DIR.resolve("test-index.html");
@@ -59,6 +113,31 @@ public class RequestTest {
 
         assertThat(res, containsString("200 OK"));
         assertThat(res, containsString(content));
+    }
+
+
+    @Test
+    public void testGetRequestHandleResponseForListHtmlAndLoggedIn() throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/user/list.html", true);
+        getRequest.handleResponse(stream);
+
+        String res = new String(stream.toByteArray());
+
+        assertThat(res, containsString("200 OK"));
+    }
+
+    @Test
+    public void testGetRequestHandleResponseForListHtmlAndNotLoggedIn() throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/user/list.html", false);
+        getRequest.handleResponse(stream);
+
+        String res = new String(stream.toByteArray());
+
+        assertThat(res, containsString("302 Found"));
+        assertThat(res, containsString("Location: /user/login.html"));
+        assertThat(res, containsString("Set-Cookie: logined=false"));
     }
 
     @Test
@@ -72,12 +151,12 @@ public class RequestTest {
         String res = new String(stream.toByteArray());
 
         assertThat(res, containsString("302 Found"));
-        assertThat(db.users, hasItem(new User(null, null, "world", null)));
+        assertThat(db.users.values(), hasItem(new User(null, null, "world", null)));
     }
 
     @Test
     public void testGetArguments() {
-        GetRequest getRequest = new GetRequest("/index.html");
+        GetRequest getRequest = new GetRequest("/index.html", false);
         assertThat(getRequest.getArguments(), equalTo("/index.html"));
 
         Map<String, String> params = Collections.singletonMap("name", "world");

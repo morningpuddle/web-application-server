@@ -17,7 +17,12 @@ public class RequestFactory {
         return new NewUserRequest(userDatabase, args);
     }
 
-    public Request createGetRequest(String url) {
-        return new GetRequest(url);
+    public Request createNewLoginRequest(String body) {
+        Map<String, String> args = HttpRequestUtils.parseQueryString(body);
+        return new LoginRequest(userDatabase, args);
+    }
+
+    public Request createGetRequest(String url, boolean isLogged) {
+        return new GetRequest(url, isLogged);
     }
 }

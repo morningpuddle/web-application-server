@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import webserver.request.GetRequest;
+import webserver.request.LoginRequest;
 import webserver.request.NewUserRequest;
 import webserver.request.Request;
 import webserver.request.RequestFactory;
@@ -68,6 +69,23 @@ public class RequestUtilsTest {
         Request req = RequestUtils.parseRequest(factory, reader);
 
         assertThat(req, instanceOf(NewUserRequest.class));
+    }
+
+    @Test
+    public void createsNewLoginRequest() throws IOException {
+        String test =
+                "POST /user/login.html HTTP/1.1\n" +
+                        "Host: localhost:8080\n" +
+                        "Connection: keep-alive\n" +
+                        "Content-Length: 48\n" +
+                        "\n" +
+                        "userId=abc&password=def\n";
+        Reader inputString = new StringReader(test);
+        BufferedReader reader = new BufferedReader(inputString);
+
+        Request req = RequestUtils.parseRequest(factory, reader);
+
+        assertThat(req, instanceOf(LoginRequest.class));
     }
 
     @Test

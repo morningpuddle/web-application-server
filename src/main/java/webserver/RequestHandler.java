@@ -29,7 +29,7 @@ public class RequestHandler extends Thread {
             InputStreamReader reader = new InputStreamReader(in);
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-            Request request = RequestUtils.createRequest(bufferedReader);
+            Request request = RequestUtils.parseRequest(bufferedReader);
             log.debug(request.getArguments());
 
             request.handleResponse(out);

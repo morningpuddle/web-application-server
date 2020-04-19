@@ -22,7 +22,7 @@ public class RequestUtilsTest {
         Reader inputString = new StringReader(test);
         BufferedReader reader = new BufferedReader(inputString);
 
-        Request req = RequestUtils.createRequest(reader);
+        Request req = RequestUtils.parseRequest(reader);
 
         assertThat(req, instanceOf(GetRequest.class));
     }
@@ -39,7 +39,7 @@ public class RequestUtilsTest {
         Reader inputString = new StringReader(test);
         BufferedReader reader = new BufferedReader(inputString);
 
-        Request req = RequestUtils.createRequest(reader);
+        Request req = RequestUtils.parseRequest(reader);
 
         assertThat(req, instanceOf(NewUserRequest.class));
     }

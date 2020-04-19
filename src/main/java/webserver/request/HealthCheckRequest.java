@@ -13,7 +13,7 @@ public class HealthCheckRequest extends Request {
     public void handleResponse(OutputStream out) {
         DataOutputStream dos = new DataOutputStream(out);
         byte[] bytes = "Hello World".getBytes();
-        responseHeader(dos, "200", bytes.length);
+        responseHeader(dos, 200, "OK", bytes.length);
         responseBody(dos, bytes);
     }
 

@@ -35,7 +35,6 @@ public class RequestTest {
         assertThat(res, containsString(content));
     }
 
-
     @Test
     public void testNewUserRequestHandleResponse() throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -46,7 +45,7 @@ public class RequestTest {
 
         String res = new String(stream.toByteArray());
 
-        assertThat(res, containsString("200 OK"));
+        assertThat(res, containsString("302 Found"));
     }
 
     @Test
@@ -64,7 +63,7 @@ public class RequestTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(stream);
 
-        responseHeader(dos, "200", 20);
+        responseHeader(dos, 200, "OK", Collections.singletonMap("Content-Length", "20"));
 
         String res = new String(stream.toByteArray());
         assertThat(res, containsString("200 OK"));

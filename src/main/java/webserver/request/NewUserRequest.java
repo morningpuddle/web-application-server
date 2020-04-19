@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Map;
 
 public class NewUserRequest extends Request {
@@ -29,7 +30,9 @@ public class NewUserRequest extends Request {
         );
         log.debug("Created user {}", user);
 
-        responseHeader(dos, "200", 0);
+        responseHeader(dos, 302, "Found",
+                Collections.singletonMap("Location", "/index.html")
+        );
     }
 
     @Override

@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Map;
 
 public abstract class Request {
     private static final Logger log = LoggerFactory.getLogger(Request.class);
@@ -22,16 +24,22 @@ public abstract class Request {
 
     public abstract String getArguments();
 
-    protected static void responseHeader(DataOutputStream dos, String httpResponseCode, int lengthOfBodyContent) {
+    protected static void responseHeader(DataOutputStream dos, int responseCode, String responseMessage, Map<String, String> fields) {
         try {
-            dos.writeBytes("HTTP/1.1 " + httpResponseCode + " OK \r\n");
-            // TODO: Content-Type: ???
+            dos.writeBytes("HTTP/1.1 " + responseCode + " " + responseMessage + "\r\n");
             dos.writeBytes("charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            for (Map.Entry<String, String> entry : fields.entrySet()) {
+                dos.writeBytes(entry.getKey() + ": " + entry.getValue() + "\r\n");
+            }
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    protected static void responseHeader(DataOutputStream dos, int httpResponseCode, String httpResponseMessage, int lengthOfBodyContent) {
+        responseHeader(dos, httpResponseCode, httpResponseMessage,
+                Collections.singletonMap("Content-Length", "" + lengthOfBodyContent));
     }
 
     protected static void responseBody(DataOutputStream dos, byte[] body) {

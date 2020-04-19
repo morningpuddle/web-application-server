@@ -16,10 +16,12 @@ import java.util.Map;
 import static webserver.request.Request.WebRequestType.UNDEFINED;
 
 public class RequestUtils {
+    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+
     private static final String FILE_REGEX = ".*/(css|images|fonts|js|qna|user|index|favicon).*";
     private static final String USER_CREATE_REGEX = ".*/user/create?.*";
 
-    public static Request createRequest(BufferedReader bufferedReader) throws IOException {
+    public static Request parseRequest(BufferedReader bufferedReader) throws IOException {
         Request.WebRequestType method = UNDEFINED;
         String url = "/";
         int contentLength = 0;
@@ -39,6 +41,8 @@ public class RequestUtils {
                 contentLength = Integer.parseInt(line.split(": ")[1]);
             }
         }
+
+        log.debug("Parsed line: {} {} {}", method, url, contentLength);
 
         switch (method) {
             case GET:

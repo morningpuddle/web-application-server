@@ -37,7 +37,7 @@ public class GetRequest extends Request {
         DataOutputStream dos = new DataOutputStream(out);
         try {
             byte[] bytes = Files.readAllBytes(new File(baseDir + requestUrl).toPath());
-            responseHeader(dos, "200", bytes.length);
+            responseHeader(dos, 200, "OK", bytes.length);
             responseBody(dos, bytes);
         } catch (IOException e) {
             log.error("Failed to handle response for GetRequest", e);

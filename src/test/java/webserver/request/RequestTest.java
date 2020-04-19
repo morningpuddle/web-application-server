@@ -112,7 +112,22 @@ public class RequestTest {
         String res = new String(stream.toByteArray());
 
         assertThat(res, containsString("200 OK"));
+        assertThat(res, containsString("Content-Type: text/html"));
         assertThat(res, containsString(content));
+    }
+
+
+    @Test
+    public void testGetRequestHandleResponseForCss() {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/test.css");
+        getRequest.handleResponse(stream);
+
+        String res = new String(stream.toByteArray());
+
+        assertThat(res, containsString("200 OK"));
+        assertThat(res, containsString("Content-Type: text/css"));
     }
 
     @Test

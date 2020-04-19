@@ -2,7 +2,6 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 import util.IOUtils;
 import webserver.request.HealthCheckRequest;
 import webserver.request.Request;

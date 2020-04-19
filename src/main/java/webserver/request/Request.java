@@ -26,7 +26,10 @@ public abstract class Request {
 
     public abstract String getArguments();
 
-    protected static void responseHeader(DataOutputStream dos, int responseCode, String responseMessage, Map<String, String> fields) {
+    protected static void responseHeader(DataOutputStream dos,
+                                         int responseCode,
+                                         String responseMessage,
+                                         Map<String, String> fields) {
         try {
             dos.writeBytes("HTTP/1.1 " + responseCode + " " + responseMessage + "\r\n");
             dos.writeBytes("charset=utf-8\r\n");

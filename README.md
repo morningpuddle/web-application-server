@@ -33,7 +33,9 @@ Location: /relative or absolute
 * String replace is not in-place
 
 ### 요구사항 6 - stylesheet 적용
-* 
+* https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
+* Group zero always stands for the entire expression.
+* need to do while(matcher.find()) { ... }
 
 ### heroku 서버에 배포 후
 * 

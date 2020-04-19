@@ -23,10 +23,14 @@
 * get은 params가 url에, post는 body에 
 
 ### 요구사항 4 - redirect 방식으로 이동
-* 
+* Basic  
+```
+302 Found w/ 
+Location: /relative or absolute
+```
 
 ### 요구사항 5 - cookie
-* 
+* String replace is not in-place
 
 ### 요구사항 6 - stylesheet 적용
 * 

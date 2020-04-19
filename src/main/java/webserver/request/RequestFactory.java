@@ -28,6 +28,6 @@ public class RequestFactory {
     }
 
     public Request createListRequest(boolean isLogged) {
-        return new ListRequest(DEFAULT_GET_DIR, isLogged);
+        return new ListRequest(DEFAULT_GET_DIR, isLogged, userDatabase);
     }
 }

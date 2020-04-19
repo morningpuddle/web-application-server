@@ -37,7 +37,7 @@ public class RequestTest {
         public User findUserById(String userId) { return users.get(userId); }
 
         @Override
-        public Collection<User> findAll() { return null; }
+        public Collection<User> findAll() { return users.values(); }
     }
 
     @Before
@@ -115,22 +115,25 @@ public class RequestTest {
         assertThat(res, containsString(content));
     }
 
-
     @Test
-    public void testListRequestHandleResponseForListHtmlAndLoggedIn() {
+    public void testListRequestHandleResponse() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ListRequest getRequest = new ListRequest(TEST_RESOURCE_DIR.toString(), true);
+        db.addUser(new User("id", null, "foobar", "a@b.c"));
+        ListRequest getRequest = new ListRequest(TEST_RESOURCE_DIR.toString(), true, db);
         getRequest.handleResponse(stream);
 
         String res = new String(stream.toByteArray());
 
         assertThat(res, containsString("200 OK"));
+        assertThat(res, containsString("<td>id</td>"));
+        assertThat(res, containsString("<td>foobar</td>"));
+        assertThat(res, containsString("<td>a@b.c</td>"));
     }
 
     @Test
-    public void testListRequestHandleResponseForListHtmlAndNotLoggedIn() {
+    public void testListRequestHandleResponseIfNotLoggedIn() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ListRequest getRequest = new ListRequest(TEST_RESOURCE_DIR.toString(), false);
+        ListRequest getRequest = new ListRequest(TEST_RESOURCE_DIR.toString(), false, db);
         getRequest.handleResponse(stream);
 
         String res = new String(stream.toByteArray());

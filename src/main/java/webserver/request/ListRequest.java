@@ -1,5 +1,7 @@
 package webserver.request;
 
+import db.DataBase;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +17,12 @@ public class ListRequest extends Request {
 
     private final boolean logged;
     private final String baseDir;
+    private final DataBase db;
 
-    public ListRequest(String baseDir, boolean logged) {
+    public ListRequest(String baseDir, boolean logged, DataBase db) {
         this.logged = logged;
         this.baseDir = baseDir;
+        this.db = db;
     }
 
     @Override
@@ -30,13 +34,26 @@ public class ListRequest extends Request {
             );
         } else {
             try {
-                byte[] bytes = Files.readAllBytes(new File(baseDir + "/user/list.html").toPath());
+                String bodyString = Files.readString(new File(baseDir + "/user/list.html").toPath());
+                bodyString = bodyString.replace("$tbody", generateList());
+                byte[] bytes = bodyString.getBytes();
                 responseHeader(dos, 200, "OK", bytes.length);
                 responseBody(dos, bytes);
             } catch (IOException e) {
                 log.error("Failed to handle response for GetRequest", e);
             }
         }
+    }
+
+    private String generateList() {
+        StringBuilder builder = new StringBuilder();
+        for (User user : db.findAll()) {
+            builder.append("<tr>\n" +
+                    "<th scope=\"row\">2</th> <td>" + user.getUserId() + "</td> <td>" + user.getName() + "</td> <td>" + user.getEmail() + "</td><td><a href=\"#\" class=\"btn btn-success\" role=\"button\">수정</a></td>\n" +
+                    "</tr>\n"
+            );
+        }
+        return builder.toString();
     }
 
     @Override

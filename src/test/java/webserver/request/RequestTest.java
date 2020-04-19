@@ -1,5 +1,8 @@
 package webserver.request;
 
+import db.DataBase;
+import model.User;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -8,17 +11,40 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.*;
 import static webserver.request.Request.responseHeader;
 
 public class RequestTest {
 
     public static final Path TEST_RESOURCE_DIR = Paths.get("src", "test", "resources");
+    TestDatabaseImpl db;
+
+    public class TestDatabaseImpl implements DataBase {
+        public List<User> users = new LinkedList<>();
+
+        @Override
+        public void addUser(User user) { users.add(user); }
+
+        @Override
+        public User findUserById(String userId) { return null; }
+
+        @Override
+        public Collection<User> findAll() { return null; }
+    }
+
+    @Before
+    public void setup() {
+        db = new TestDatabaseImpl();
+    }
 
     @Test
     public void testGetRequestHandleResponse() throws IOException {
@@ -36,16 +62,17 @@ public class RequestTest {
     }
 
     @Test
-    public void testNewUserRequestHandleResponse() throws IOException {
+    public void testNewUserRequestHandleResponse() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         Map<String, String> params = Collections.singletonMap("name", "world");
-        NewUserRequest getRequest = new NewUserRequest(params);
+        NewUserRequest getRequest = new NewUserRequest(db, params);
         getRequest.handleResponse(stream);
 
         String res = new String(stream.toByteArray());
 
         assertThat(res, containsString("302 Found"));
+        assertThat(db.users, hasItem(new User(null, null, "world", null)));
     }
 
     @Test
@@ -54,7 +81,7 @@ public class RequestTest {
         assertThat(getRequest.getArguments(), equalTo("/index.html"));
 
         Map<String, String> params = Collections.singletonMap("name", "world");
-        NewUserRequest newUserRequest = new NewUserRequest(params);
+        NewUserRequest newUserRequest = new NewUserRequest(db, params);
         assertThat(newUserRequest.getArguments(), equalTo(params.toString()));
     }
 

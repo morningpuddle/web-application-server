@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import db.DataBaseImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.request.Request;
+import webserver.request.RequestFactory;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -24,12 +26,15 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
+        DataBaseImpl db = new DataBaseImpl();
+        RequestFactory factory = new RequestFactory(db);
+
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             InputStreamReader reader = new InputStreamReader(in);
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-            Request request = RequestUtils.parseRequest(bufferedReader);
+            Request request = RequestUtils.parseRequest(factory, bufferedReader);
             log.debug(request.getArguments());
 
             request.handleResponse(out);

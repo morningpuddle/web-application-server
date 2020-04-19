@@ -1,20 +1,46 @@
 package webserver;
 
+import db.DataBase;
+import db.DataBaseImpl;
+import model.User;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import webserver.request.GetRequest;
 import webserver.request.NewUserRequest;
 import webserver.request.Request;
+import webserver.request.RequestFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class RequestUtilsTest {
+
+    DataBase db;
+    RequestFactory factory;
+
+    private class TestDatabaseImpl implements DataBase {
+        @Override
+        public void addUser(User user) { }
+
+        @Override
+        public User findUserById(String userId) { return null; }
+
+        @Override
+        public Collection<User> findAll() { return null; }
+    }
+
+    @Before
+    public void setup() {
+        db = new TestDatabaseImpl();
+        factory = new RequestFactory(db);
+    }
 
     @Test
     public void createsGetRequest() throws IOException {
@@ -22,7 +48,7 @@ public class RequestUtilsTest {
         Reader inputString = new StringReader(test);
         BufferedReader reader = new BufferedReader(inputString);
 
-        Request req = RequestUtils.parseRequest(reader);
+        Request req = RequestUtils.parseRequest(factory, reader);
 
         assertThat(req, instanceOf(GetRequest.class));
     }
@@ -39,7 +65,7 @@ public class RequestUtilsTest {
         Reader inputString = new StringReader(test);
         BufferedReader reader = new BufferedReader(inputString);
 
-        Request req = RequestUtils.parseRequest(reader);
+        Request req = RequestUtils.parseRequest(factory, reader);
 
         assertThat(req, instanceOf(NewUserRequest.class));
     }

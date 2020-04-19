@@ -1,5 +1,7 @@
 package webserver.request;
 
+import db.DataBase;
+import lombok.Value;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,13 +11,16 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
 
+@Value
 public class NewUserRequest extends Request {
     private static final Logger log = LoggerFactory.getLogger(NewUserRequest.class);
 
     Map<String, String> formData;
+    DataBase db;
 
-    public NewUserRequest(Map<String, String> formData) {
+    public NewUserRequest(DataBase db, Map<String, String> formData) {
         this.type = WebRequestType.POST;
+        this.db = db;
         this.formData = formData;
     }
 
@@ -29,6 +34,7 @@ public class NewUserRequest extends Request {
                 formData.get("email")
         );
         log.debug("Created user {}", user);
+        db.addUser(user);
 
         responseHeader(dos, 302, "Found",
                 Collections.singletonMap("Location", "/index.html")

@@ -2,16 +2,13 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 import util.IOUtils;
 import webserver.request.HealthCheckRequest;
-import webserver.request.NewUserRequest;
-import webserver.request.GetRequest;
 import webserver.request.Request;
+import webserver.request.RequestFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Map;
 
 import static webserver.request.Request.WebRequestType.UNDEFINED;
 
@@ -21,7 +18,7 @@ public class RequestUtils {
     private static final String FILE_REGEX = ".*/(css|images|fonts|js|qna|user|index|favicon).*";
     private static final String USER_CREATE_REGEX = ".*/user/create?.*";
 
-    public static Request parseRequest(BufferedReader bufferedReader) throws IOException {
+    public static Request parseRequest(RequestFactory factory, BufferedReader bufferedReader) throws IOException {
         Request.WebRequestType method = UNDEFINED;
         String url = "/";
         int contentLength = 0;
@@ -46,24 +43,15 @@ public class RequestUtils {
 
         switch (method) {
             case GET:
-                return createGetRequest(url);
+                return factory.createGetRequest(url);
             case POST:
-                return createNewUserRequest(bufferedReader, contentLength);
+                String body = IOUtils.readData(bufferedReader, contentLength);
+                return factory.createNewUserRequest(body);
             case UNDEFINED:
                 // TODO: 404 request
         }
         // TODO: 404 request
         return new HealthCheckRequest();
-    }
-
-    private static Request createNewUserRequest(BufferedReader bufferedReader, int contentLength) throws IOException {
-        String body = IOUtils.readData(bufferedReader, contentLength);
-        Map<String, String> args = HttpRequestUtils.parseQueryString(body);
-        return new NewUserRequest(args);
-    }
-
-    private static Request createGetRequest(String url) {
-        return new GetRequest(url);
     }
 
     private static boolean isFile(String url) {

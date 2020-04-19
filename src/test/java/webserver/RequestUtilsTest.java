@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import webserver.request.GetRequest;
+import webserver.request.ListRequest;
 import webserver.request.LoginRequest;
 import webserver.request.NewUserRequest;
 import webserver.request.Request;
@@ -86,6 +87,23 @@ public class RequestUtilsTest {
         Request req = RequestUtils.parseRequest(factory, reader);
 
         assertThat(req, instanceOf(LoginRequest.class));
+    }
+
+
+    @Test
+    public void createsNewListRequest() throws IOException {
+        String test =
+                "GET /user/list.html HTTP/1.1\n" +
+                        "Host: localhost:8080\n" +
+                        "Connection: keep-alive\n" +
+                        "Content-Length: 48\n" +
+                        "\n";
+        Reader inputString = new StringReader(test);
+        BufferedReader reader = new BufferedReader(inputString);
+
+        Request req = RequestUtils.parseRequest(factory, reader);
+
+        assertThat(req, instanceOf(ListRequest.class));
     }
 
     @Test

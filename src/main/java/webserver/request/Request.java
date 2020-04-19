@@ -14,6 +14,7 @@ public abstract class Request {
 
     public enum WebRequestType {
         GET,
+        GET_LIST,
         LOGIN,
         POST,
         UNDEFINED;

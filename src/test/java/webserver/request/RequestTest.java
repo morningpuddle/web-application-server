@@ -104,7 +104,7 @@ public class RequestTest {
     public void testGetRequestHandleResponse() throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/test-index.html", false);
+        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/test-index.html");
         getRequest.handleResponse(stream);
 
         Path filePath = TEST_RESOURCE_DIR.resolve("test-index.html");
@@ -117,9 +117,9 @@ public class RequestTest {
 
 
     @Test
-    public void testGetRequestHandleResponseForListHtmlAndLoggedIn() throws IOException {
+    public void testListRequestHandleResponseForListHtmlAndLoggedIn() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/user/list.html", true);
+        ListRequest getRequest = new ListRequest(TEST_RESOURCE_DIR.toString(), true);
         getRequest.handleResponse(stream);
 
         String res = new String(stream.toByteArray());
@@ -128,9 +128,9 @@ public class RequestTest {
     }
 
     @Test
-    public void testGetRequestHandleResponseForListHtmlAndNotLoggedIn() throws IOException {
+    public void testListRequestHandleResponseForListHtmlAndNotLoggedIn() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        GetRequest getRequest = new GetRequest(TEST_RESOURCE_DIR.toString(), "/user/list.html", false);
+        ListRequest getRequest = new ListRequest(TEST_RESOURCE_DIR.toString(), false);
         getRequest.handleResponse(stream);
 
         String res = new String(stream.toByteArray());
@@ -156,7 +156,7 @@ public class RequestTest {
 
     @Test
     public void testGetArguments() {
-        GetRequest getRequest = new GetRequest("/index.html", false);
+        GetRequest getRequest = new GetRequest("/index.html", "/index.html");
         assertThat(getRequest.getArguments(), equalTo("/index.html"));
 
         Map<String, String> params = Collections.singletonMap("name", "world");

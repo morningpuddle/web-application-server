@@ -20,8 +20,9 @@ public class RequestUtils {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private static final String FILE_REGEX = ".*/(css|images|fonts|js|qna|user|index|favicon).*";
-    private static final String USER_CREATE_REGEX = ".*/user/create?.*";
-    private static final String USER_LOGIN_REGEX = ".*/user/login?.*";
+    private static final String USER_CREATE_REGEX = ".*/user/create.*";
+    private static final String USER_LOGIN_REGEX = ".*/user/login.*";
+    private static final String USER_LIST_REGEX = ".*/user/list.html.*";
 
     public static Request parseRequest(RequestFactory factory, BufferedReader bufferedReader) throws IOException {
         Request.WebRequestType method = UNDEFINED;
@@ -32,7 +33,11 @@ public class RequestUtils {
         String header = "";
         Map<String, String> cookies = new HashMap<>();
         while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
-            if (line.contains("GET") && isFile(line)) {
+            if (line.contains("GET") && isList(line)) {
+                String[] tokens = line.split(" ");
+                method = Request.WebRequestType.GET_LIST;
+                url = tokens[1];
+            } else if (line.contains("GET") && isFile(line)) {
                 // TODO: fail if url missing?
                 String[] tokens = line.split(" ");
                 method = Request.WebRequestType.GET;
@@ -61,7 +66,9 @@ public class RequestUtils {
 
         switch (method) {
             case GET:
-                return factory.createGetRequest(url, Boolean.parseBoolean(cookies.get("logined")));
+                return factory.createGetRequest(url);
+            case GET_LIST:
+                return factory.createListRequest(Boolean.parseBoolean(cookies.get("logined")));
             case POST:
                 return factory.createNewUserRequest(body);
             case LOGIN:
@@ -71,6 +78,10 @@ public class RequestUtils {
         }
         // TODO: 404 request
         return new HealthCheckRequest();
+    }
+
+    private static boolean isList(String url) {
+        return url.matches(USER_LIST_REGEX);
     }
 
     private static boolean isFile(String url) {
